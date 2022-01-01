@@ -1,6 +1,7 @@
 from flask import *
 import os
 import pickle
+import shutil
 
 os.system("cls")
 app = Flask(__name__)
@@ -165,6 +166,49 @@ def touch(token, loc, name):
 @app.route('/deleteaccess/<string:apass>/<string:token>/<string:tpass>', methods=['GET'])
 def adelete(apass, token, tpass):
     boolstatus, result = deleteAccess(tpass=tpass, apass=apass, token=token)
+    return result
+
+
+@app.route('/delete/<string:token>/<string:path>', methods=['GET'])
+def delete(token, path:str):
+    # result = {}
+    try:
+        tokenh = token.split(seperator)
+        if len(tokenh) == 2:
+            have, whatHave = haveAccess(token=tokenh[0], tpass=tokenh[1])
+            if have:
+                if whatHave['delete']:
+                    print(path)
+                    if os.path.isdir(path):
+                        # os.system("del /f " + path)
+                        # print(path)
+                        result = {
+                            "error": os.system("rmdir /q /s " + path)
+                        }
+                    elif os.path.isfile(path):
+                        result = {
+                            "error": os.system("del /f " + path)
+                        }
+                    else:
+                        result = {
+                            "error": "File or Folder Does not Exists"
+                        }
+                else:
+                    result = {
+                        "error": "Not Have Access To Delete"
+                    }
+            else:
+                result = {
+                    "error": "Token Value Not Accepted"
+                }
+        else:
+            result = {
+                "error": "token not properly encoded"
+            }
+    except:
+        result = {
+            "error": "token not properly encoded"
+        }
     return result
 
 
